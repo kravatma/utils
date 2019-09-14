@@ -21,7 +21,6 @@ class MultiColumnLabelEncoder:
     def __init__(self, columns = None):
         self.columns = columns
 
-        
     def fit(self, X):
         encoders_dict = dict()
         if self.columns:
@@ -57,8 +56,6 @@ class MultiColumnLabelEncoder:
         return output
 
 
-    
-        
 class SimpleDataTransformer():
     def __init__(self, numerical_cols=None, categorical_cols=None, numerical_transformer=None):
         self.transformers_dict = dict()        
@@ -84,7 +81,6 @@ class SimpleDataTransformer():
             self.ohe = OneHotEncoder(sparse=False, categories='auto').fit(mcle_out)
             #for col in self.categorical_cols:
             #    self.transformers_dict[col] = OneHotEncoder.fit(mcle_out[[col]])
-        
         return self
         
     def transform(self, X, drop_cat=True):
@@ -100,7 +96,6 @@ class SimpleDataTransformer():
             catcol_names = ['ohe%d'%i for i in range(ohe_out.shape[1])]
             ohe_out_df = DataFrame(ohe_out, columns=catcol_names)
             output = concat((output, ohe_out_df), axis=1)
-        
         return output
 
     def fit_transform(self, X):
@@ -119,10 +114,7 @@ class SimpleDataTransformer():
         return output        
         """
         
-        
-        
-QuantileTransformer(n_quantiles=500, output_distribution='normal')
-    
+
 def cv_search(base_model, X, y, param_grid, testsize=0.5, cv=5):
     (X_train, X_test, y_train, y_test) = train_test_split(X, y, test_size=testsize, random_state=42)
     gs_cv = GridSearchCV(base_model, param_grid=param_grid, cv=cv, n_jobs=-1, verbose=True)
