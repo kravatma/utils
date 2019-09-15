@@ -1,6 +1,6 @@
 from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder, QuantileTransformer
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, QuantileTransformer, PolynomialFeatures
 from sklearn.metrics import mean_squared_error
 from pandas import DataFrame, concat
 
@@ -57,13 +57,20 @@ class MultiColumnLabelEncoder:
 
 
 class SimpleDataTransformer():
-    def __init__(self, numerical_cols=None, categorical_cols=None, numerical_transformer=None):
-        self.transformers_dict = dict()        
+    def __init__(self, numerical_cols=None, categorical_cols=None, numerical_transformer=None, degree=1):
+        self.transformers_dict = dict()
+        self.degree = degree
         if numerical_cols:
             self.numerical_cols = numerical_cols
+        else:
+            self.numerical_cols = None
+            
         if categorical_cols:
             self.categorical_cols = categorical_cols
             self.mcle = MultiColumnLabelEncoder(categorical_cols)
+        else:
+            self.categorical_cols = None
+            
         if numerical_transformer is None:
             self.numerical_transformer = QuantileTransformer(1000, 'normal')
         elif isinstance(numerical_transformer, type):
@@ -75,10 +82,11 @@ class SimpleDataTransformer():
         if self.numerical_cols:
             for col in self.numerical_cols:
                 self.transformers_dict[col] = self.numerical_transformer.fit(X[[col]])
-        
+            self.polynomial = PolynomialFeatures(self.degree).fit(X[self.numerical_cols])
+            
         if self.categorical_cols:
-            mcle_out = self.mcle.fit_transform(X[self.categorical_cols])
-            self.ohe = OneHotEncoder(sparse=False, categories='auto').fit(mcle_out)
+            mcle_out = X[self.categorical_cols]#self.mcle.fit_transform(X[self.categorical_cols])
+            self.ohe = OneHotEncoder(sparse=False, categories='auto', handle_unknown='ignore').fit(mcle_out)
             #for col in self.categorical_cols:
             #    self.transformers_dict[col] = OneHotEncoder.fit(mcle_out[[col]])
         return self
@@ -88,8 +96,14 @@ class SimpleDataTransformer():
         if self.numerical_cols:
             for col in self.numerical_cols:
                 output[col] = self.transformers_dict[col].transform(output[[col]])
+            polynom_out = self.polynomial.fit_transform(output[self.numerical_cols])
+            polynom_cols = ['num%d'%i for i in range(polynom_out.shape[1])]
+            polynom_out_df = DataFrame(polynom_out, columns=polynom_cols)
+            output = concat((output, polynom_out_df), axis=1)
+            output.drop(columns=self.numerical_cols, inplace=True)
+            
         if self.categorical_cols:
-            mcle_out = self.mcle.transform(X[self.categorical_cols])
+            mcle_out = X[self.categorical_cols]#self.mcle.transform(X[self.categorical_cols])
             ohe_out = self.ohe.transform(mcle_out)
             if drop_cat:
                 output.drop(columns=self.categorical_cols, inplace=True)
