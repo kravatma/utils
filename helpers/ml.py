@@ -135,5 +135,5 @@ def cv_search(base_model, X, y, param_grid, testsize=0.5, cv=5):
     gs_cv.fit(X_train, y_train)
     #print(gs_cv.score(X_test, y_test))
     print('mse validation:', mean_squared_error(y_test, gs_cv.predict(X_test))**0.5)
-    return gs_cv.best_estimator_
+    return gs_cv
     
