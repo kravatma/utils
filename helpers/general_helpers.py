@@ -42,4 +42,16 @@ def write_json(obj, filepath):
     except Exception as exc:
         return exc
 
+		
+def multiple_merge(dfs, cols, hows):
+    main_df = dfs[0].copy()
+    left_col = cols[0]
+    hows=[''] + hows
+    for i in range(1, len(dfs)):
+        right_col = cols[i]
+        if right_col==left_col:
+            main_df = pd.merge(left=main_df, right=dfs[i], on=left_col, how=hows[i])
+        else:
+            main_df = pd.merge(left=main_df, right=dfs[i], left_on=left_col, right_on=right_col, how=hows[i])
         
+    return main_df
