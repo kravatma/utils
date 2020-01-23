@@ -42,7 +42,7 @@ def read_json(filepath):
 def write_json(obj, filepath):
     try:
         with open(filepath, 'w') as f:
-            json.dump(obj, filepath)
+            json.dump(obj, f)
         return 'ok'
     except Exception as exc:
         return exc
