@@ -5,9 +5,10 @@ from sqlalchemy.exc import IntegrityError
 import pymssql
 
 
-def easy_engine(creds, db):
+def easy_engine(creds, db, dbname):
     connection_params = read_yaml(creds)[db]
     connection_params['db'] = db
+    connection_params['dbname'] = dbname
     if db=='mssql':
         connection_params['db'] = 'mssql+pymssql'
     url = '%(db)s://%(user)s:%(password)s@%(address)s:%(port)s/%(dbname)s' % connection_params
@@ -91,13 +92,37 @@ class mssql_connection():
         return df
     
     
-    def insert(self, data, table, columns=None):
-        query="""INSERT INTO %(table)s (%(cols)s) VALUES (%(vals)s)"""
+    def insert(self, data, table, columns=None, dtypes=None):
+        query="""INSERT INTO %(table)s (%(cols)s) VALUES %(vals)s"""
         if isinstance(data, dict):
             columns = list(data.keys())
             values = list(data.values())
         columns_string = ','.join(columns)
-        values_string = ','.join(["'%s'" % str(val) for val in values])
+        if isinstance(data, list):
+            values_string=""
+            for i, row in enumerate(data):
+                values_string += ",\n"*(i>0) + "(" + ', '.join(["'%s'"%str(r) for r in row]) + ")"
+                
+        if isinstance(data, DataFrame):
+            values_string=""
+            for i, row in enumerate(data.values):
+                if not dtypes:
+                    row_list = ["'%s'"%str(r) for r in row]
+                else:
+                    row_list = []
+                    for j, val in enumerate(row):
+                        if dtypes[j]=='string':
+                            row_list.append("CAST('%s' AS %s)" % (val, dtypes[j]))
+                        elif dtypes[j]=='binary':
+                            row_list.append("CAST(0x%s AS %s)" % (val, dtypes[j]))
+                        elif dtypes[j]!='':
+                            row_list.append("CAST(%s AS %s)" % (val, dtypes[j]))
+                        else:
+                            row_list.append("%s" % (val))
+
+                values_string += ", "*(i>0) + "(" + ', '.join(row_list) + ")"
+            
+        
         query_string = query %({'table': table, 'cols': columns_string,'vals': values_string})
         
         cursor = self.connection.cursor()
@@ -108,7 +133,7 @@ class mssql_connection():
             return query_string
             
         except Exception as exc:
-            return exc
+            return exc, query_string
         
         
         
