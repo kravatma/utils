@@ -97,6 +97,8 @@ class mssql_connection():
         if isinstance(data, dict):
             columns = list(data.keys())
             values = list(data.values())
+            values_string = "(" + ', '.join(["'%s'"%str(r) for r in values]) + ")"
+            
         columns_string = ','.join(columns)
         if isinstance(data, list):
             values_string=""
