@@ -5,13 +5,14 @@ from sqlalchemy.exc import IntegrityError
 import pymssql
 
 
-def easy_engine(creds, db, dbname):
-    connection_params = read_yaml(creds)[db]
-    connection_params['db'] = db
-    connection_params['dbname'] = dbname
-    if db=='mssql':
-        connection_params['db'] = 'mssql+pymssql'
-    url = '%(db)s://%(user)s:%(password)s@%(address)s:%(port)s/%(dbname)s' % connection_params
+def easy_engine(config_path, conection_name):
+    connection_params = read_yaml(config_path)[conection_name]
+    if connection_params.get('DBAPI'):
+        connection_params['dbcon'] = connection_params['vendor'] + "+" + connection_params['DBAPI']
+    else:
+        connection_params['dbcon'] = connection_params['vendor']
+    
+    url = '%(dbcon)s://%(user)s:%(password)s@%(address)s:%(port)s/%(dbname)s' % connection_params
     engine = create_engine(url, echo=False)
 
     return engine
