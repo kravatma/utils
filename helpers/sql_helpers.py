@@ -1,4 +1,4 @@
-from helpers.general_helpers import read_yaml
+from utils.helpers.general_helpers import read_yaml
 from pandas import read_sql, DataFrame
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
