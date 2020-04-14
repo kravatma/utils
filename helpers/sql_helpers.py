@@ -7,12 +7,12 @@ import pymssql
 
 def easy_engine(config_path, conection_name):
     connection_params = read_yaml(config_path)[conection_name]
-    if connection_params.get('DBAPI'):
-        connection_params['dbcon'] = connection_params['vendor'] + "+" + connection_params['DBAPI']
+    if connection_params.get('driver'):
+        connection_params['dbcon'] = connection_params['dialect'] + "+" + connection_params['driver']
     else:
-        connection_params['dbcon'] = connection_params['vendor']
+        connection_params['dbcon'] = connection_params['dialect']
     
-    url = '%(dbcon)s://%(user)s:%(password)s@%(address)s:%(port)s/%(dbname)s' % connection_params
+    url = '%(dbcon)s://%(username)s:%(password)s@%(host)s:%(port)s/%(dbname)s' % connection_params
     engine = create_engine(url, echo=False)
 
     return engine

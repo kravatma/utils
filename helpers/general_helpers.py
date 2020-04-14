@@ -4,7 +4,6 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 #import datetime
-from datetime_truncate import truncate
 
 
 def dates_range(date_from, date_to, frame='day', output_type='str', output_format='%Y-%m-%d'):
@@ -22,10 +21,10 @@ def dates_range(date_from, date_to, frame='day', output_type='str', output_forma
     return dates
     
 
-def read_yaml(fpath):
+def read_yaml(fpath, loader=yaml.SafeLoader):
     try:
         with open(fpath, 'r') as stream:
-            res = yaml.load(stream)
+            res = yaml.load(stream, Loader=loader)
         return res
     except Exception as exc:
         return exc
