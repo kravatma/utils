@@ -53,16 +53,16 @@ def sql_insert(engine, df, table, behavior='append'):
     except Exception as exc:
         conn.close()
         return exc
-        
-
+		
+		
 class mssql_connection():
-    def __init__(self, creds):
-        con_params = read_yaml(creds)['mssql']
+    def __init__(self, config_path, conection_name):
+        con_params = read_yaml(config_path)[conection_name]
         self.last_query_string = ''
         self.last_query_data = None
         self.state = 'open'
-        self.connection = pymssql.connect(server=con_params['address']
-                                        , user=con_params['user']
+        self.connection = pymssql.connect(server=con_params['host']
+                                        , user=con_params['username']
                                         , password=con_params['password'])
 #                                        , database=con_params['dbname'])
                                         
