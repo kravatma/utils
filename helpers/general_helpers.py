@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 #import datetime
 
-
+"""
 def dates_range(date_from, date_to, frame='day', output_type='str', output_format='%Y-%m-%d'):
     if not isinstance(date_from, datetime):
         date_from = dtparser.parse(date_from)
@@ -19,7 +19,7 @@ def dates_range(date_from, date_to, frame='day', output_type='str', output_forma
         dates = list(map(lambda x: x.strftime(output_format), dates))
     
     return dates
-    
+"""
 
 def read_yaml(fpath, loader=yaml.SafeLoader):
     try:
@@ -59,3 +59,34 @@ def multiple_merge(dfs, cols, hows):
             main_df = pd.merge(left=main_df, right=dfs[i], left_on=left_col, right_on=right_col, how=hows[i])
         
     return main_df
+
+
+def coalesce(*variables, container_zero_size_eq_none=True):
+    for v in variables:
+        if v is not None:
+            if isinstance(v, (list, tuple, dict, set)) and container_zero_size_eq_none is False:
+                return v
+            elif isinstance(v, (list, tuple, dict, set)) and container_zero_size_eq_none is True:
+                if len(v) > 0:
+                    return v
+            else:
+                return v
+    return None
+
+
+def extract_seconds(dt):
+    if isinstance(dt, str):
+        dt = dtparser.parse(dt)
+    seconds_from_day_start = int(dt.hour*3600 + dt.minute*60 + dt.second)
+    return seconds_from_day_start
+
+
+if __name__ == '__main__':
+    print(extract_seconds('0001-01-01T02:00:00'))
+    tl = [1, 2]
+    print(coalesce(tl[0:1], [5]))
+    print(coalesce(tl[1:2], [5]))
+    print(coalesce(tl[2:3], [5]))
+
+
+

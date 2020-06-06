@@ -17,7 +17,7 @@ class clasterisator():
         return self.fit(df).predict(df)
         
     
-class MultiColumnLabelEncoder:
+class MultiColumnLabelEncoder():
     def __init__(self, columns = None):
         self.columns = columns
 
