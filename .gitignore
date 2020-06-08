@@ -1,0 +1,8 @@
+**.log
+conf**.yaml
+.idea*
+**.pyc
+env*
+solutions*
+fields_format.json
+logs/*
