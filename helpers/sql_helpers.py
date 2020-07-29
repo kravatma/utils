@@ -53,20 +53,25 @@ def sql_insert(engine, df, table, behavior='append'):
     except Exception as exc:
         conn.close()
         return exc
-		
-		
+        
+        
 class mssql_connection():
     def __init__(self, config_path, conection_name):
-        con_params = read_yaml(config_path)[conection_name]
+        self.con_params = read_yaml(config_path)[conection_name]
         self.last_query_string = ''
         self.last_query_data = None
-        self.state = 'open'
+
+    def open(self):
+        con_params = self.con_params
         self.connection = pymssql.connect(server=con_params['host']
                                         , user=con_params['username']
                                         , password=con_params['password'])
-#                                        , database=con_params['dbname'])
-                                        
+    
+    def close(self):
+        self.connection.close()                                        
+        
     def select(self, table=None, columns=None, where=None, query=None):
+        self.open()
         if columns is None:
             columns = ['*']
         if where is None:
@@ -85,6 +90,7 @@ class mssql_connection():
         cursor.execute(query_string)
         data_rows = cursor.fetchall()
         columns = [row[0] for row in cursor.description]
+        self.close()
         
         df = DataFrame(data_rows, columns=columns)
         
@@ -94,6 +100,7 @@ class mssql_connection():
     
     
     def insert(self, data, table, columns=None, dtypes=None):
+        self.open()
         query="""INSERT INTO %(table)s (%(cols)s) VALUES %(vals)s"""
         if isinstance(data, dict):
             columns = list(data.keys())
@@ -138,17 +145,8 @@ class mssql_connection():
         except Exception as exc:
             return exc, query_string
         
-        
-        
-
-        
-        
-        self.last_query_string = query_string
+        self.close()
         return query_string
-
-    def close(self):
-        self.connection.close()
-        self.state = 'closed'
     
     
     
