@@ -53,8 +53,8 @@ def sql_insert(engine, df, table, behavior='append'):
     except Exception as exc:
         conn.close()
         return exc
-		
-		
+        
+        
 class mssql_connection():
     def __init__(self, config_path, conection_name):
         con_params = read_yaml(config_path)[conection_name]
@@ -108,6 +108,7 @@ class mssql_connection():
                 
         if isinstance(data, DataFrame):
             values_string=""
+            data=data[columns]
             for i, row in enumerate(data.values):
                 if not dtypes:
                     row_list = ["'%s'"%str(r) for r in row]

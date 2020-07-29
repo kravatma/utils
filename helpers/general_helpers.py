@@ -3,9 +3,10 @@ import yaml
 import json
 import pandas as pd
 from datetime import datetime, timedelta
+from datetime_truncate import truncate
 #import datetime
 
-"""
+
 def dates_range(date_from, date_to, frame='day', output_type='str', output_format='%Y-%m-%d'):
     if not isinstance(date_from, datetime):
         date_from = dtparser.parse(date_from)
@@ -19,7 +20,7 @@ def dates_range(date_from, date_to, frame='day', output_type='str', output_forma
         dates = list(map(lambda x: x.strftime(output_format), dates))
     
     return dates
-"""
+
 
 def read_yaml(fpath, loader=yaml.SafeLoader):
     try:
