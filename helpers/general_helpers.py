@@ -8,9 +8,9 @@ from datetime_truncate import truncate
 
 
 def dates_range(date_from, date_to, frame='day', output_type='str', output_format='%Y-%m-%d'):
-    if not isinstance(date_from, datetime):
+    if isinstance(date_from, str):
         date_from = dtparser.parse(date_from)
-    if not isinstance(date_to, datetime):
+    if isinstance(date_to, str):
         date_to = dtparser.parse(date_to)
     dates = [date_from + timedelta(n) for n in range(int((date_to - date_from).days)+1)]
     dates = [truncate(dt, frame) for dt in dates]
@@ -47,7 +47,7 @@ def write_json(obj, filepath):
     except Exception as exc:
         return exc
 
-		
+        
 def multiple_merge(dfs, cols, hows):
     main_df = dfs[0].copy()
     left_col = cols[0]

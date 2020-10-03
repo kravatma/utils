@@ -39,10 +39,20 @@ def sql_select(engine, table=None, columns=None, where=None, query=None):
     return df
     
 
-def sql_insert(engine, df, table, behavior='append'):
+def sql_insert(engine, df, table, behavior='append', method=None):
     conn = engine.connect()
+    df_copy = df.copy()
+    df_copy.reset_index(drop=True, inplace=True)
     try:
-        df.to_sql(con=conn, name=table, if_exists=behavior, index=False)
+        if len(df_copy)>1000:
+            s_index = 0
+            e_index = 999
+            while s_index < len(df_copy):
+                df_copy.loc[s_index:e_index].to_sql(con=conn, name=table, if_exists=behavior, index=False, method=method)
+                s_index+=1000
+                e_index+=1000
+        else:
+            df_copy.to_sql(con=conn, name=table, if_exists=behavior, index=False, method=method)
         conn.close()
         print('ok')
         return 
