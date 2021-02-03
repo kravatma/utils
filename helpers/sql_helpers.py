@@ -36,6 +36,7 @@ def sql_select(engine, table=None, columns=None, where=None, query=None):
        
     df = read_sql(con=conn, sql=sql_string)
     conn.close()
+    engine.dispose()
     return df
     
 
@@ -55,7 +56,7 @@ def sql_insert(engine, df, table, behavior='append', method=None):
             df_copy.to_sql(con=conn, name=table, if_exists=behavior, index=False, method=method)
         conn.close()
         print('ok')
-        return 
+        return 1
     except IntegrityError:
         conn.close()
         print('fail')
@@ -63,6 +64,8 @@ def sql_insert(engine, df, table, behavior='append', method=None):
     except Exception as exc:
         conn.close()
         return exc
+    finally:
+        engine.dispose()
         
         
 class mssql_connection():
